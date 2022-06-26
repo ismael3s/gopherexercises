@@ -31,6 +31,9 @@ func (r PostgresProblemRepository) Read() []entities.Problem {
 		problems = append(problems, problem)
 	}
 
+	defer r.db.Close()
+	defer rows.Close()
+
 	return problems
 }
 
