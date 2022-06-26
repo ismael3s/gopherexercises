@@ -1,44 +1,30 @@
 package main
 
 import (
-	"encoding/csv"
 	"fmt"
 	"log"
-	"os"
-	"strings"
 	"time"
 
-	"github.com/ismael3s/go-01/util"
+	"github.com/ismael3s/go-01/entities"
+	"github.com/ismael3s/go-01/factories"
 )
 
-type problem struct {
-	question, answer string
-}
-
 func main() {
-	filename := "./assets/sum.csv"
-	timeLimit := 1
-	f, err := os.Open(filename)
+	timeLimit := 3
 
-	eP := util.NewErrorParam(err, fmt.Sprintf("Failed to open file: %s", filename), util.Fatal)
-	util.HandleError(eP)
+	problemRepository := factories.NewProblemRepository(factories.POSTGRES)
 
-	defer f.Close()
-
-	lines := readCsv(f)
-
-	problems := parseLines(lines)
+	problems := problemRepository.Read()
 
 	startSolving(problems, timeLimit)
-
 }
 
-func startSolving(problems []problem, timeLimit int) (score int) {
+func startSolving(problems []entities.Problem, timeLimit int) (score int) {
 	timer := time.NewTimer(time.Second * time.Duration(timeLimit))
 	score = 0
 
 	for i, p := range problems {
-		log.Printf("Problem #%d: %s = \n", i+1, p.question)
+		log.Printf("Problem #%d: %s = \n", i+1, p.Question)
 
 		answerChan := make(chan string)
 		go func() {
@@ -54,7 +40,7 @@ func startSolving(problems []problem, timeLimit int) (score int) {
 			log.Printf("You score is %d of %d\n", score, len(problems))
 			return
 		case answer := <-answerChan:
-			if answer == p.answer {
+			if answer == p.Answer {
 				score++
 			}
 		}
@@ -63,25 +49,4 @@ func startSolving(problems []problem, timeLimit int) (score int) {
 
 	log.Printf("You score is %d of %d\n", score, len(problems))
 	return
-}
-
-func readCsv(file *os.File) (lines [][]string) {
-	csvReader := csv.NewReader(file)
-
-	lines, err := csvReader.ReadAll()
-
-	eP := util.NewErrorParam(err, fmt.Sprintf("Failed to parse provide CSV.\nError: %s", err), util.Fatal)
-	util.HandleError(eP)
-
-	return lines
-}
-
-func parseLines(lines [][]string) (ret []problem) {
-	ret = make([]problem, len(lines))
-
-	for i, line := range lines {
-		ret[i] = problem{question: line[0], answer: strings.TrimSpace(line[1])}
-	}
-
-	return ret
 }
