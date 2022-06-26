@@ -10,24 +10,24 @@ const (
 )
 
 type ErrorParam struct {
-	err     error
-	message string
-	flow    ErrorFlow
+	Err     error
+	Message string
+	Flow    ErrorFlow
 }
 
 func NewErrorParam(err error, message string, flow ErrorFlow) *ErrorParam {
-	return &ErrorParam{err: err, message: message, flow: flow}
+	return &ErrorParam{Err: err, Message: message, Flow: flow}
 }
 
 func HandleError(params *ErrorParam) {
-	if params.err == nil {
+	if params.Err == nil {
 		return
 	}
 
-	switch params.flow {
+	switch params.Flow {
 	case Fatal:
-		log.Fatalln(params.message)
+		log.Fatalln(params.Message)
 	default:
-		log.Println(params.message)
+		log.Println(params.Message)
 	}
 }
