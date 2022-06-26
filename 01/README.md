@@ -9,4 +9,6 @@ Concepts used in this program.
 * Docker
 * Go routines
 * Structs
+* Working with OS File
+* Working with CSV
 
